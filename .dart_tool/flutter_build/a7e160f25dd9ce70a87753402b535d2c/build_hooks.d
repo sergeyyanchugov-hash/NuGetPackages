@@ -1,0 +1,1 @@
+ /Users/sergey/AndroidStudioProjects/NuGetPackages/.dart_tool/flutter_build/a7e160f25dd9ce70a87753402b535d2c/build_hooks_result.json: 
