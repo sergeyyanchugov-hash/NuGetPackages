@@ -1,0 +1,1 @@
+/Users/sergey/AndroidStudioProjects/NuGetPackages/build/macos/Build/Products/Debug/nuget_packages.app
