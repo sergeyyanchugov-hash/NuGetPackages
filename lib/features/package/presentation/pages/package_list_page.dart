@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:nuget_packages/l10n/app_localizations.dart';
 import '../bloc/package_list_cubit.dart';
 import '../bloc/theme_cubit.dart';
+import '../bloc/locale_cubit.dart';
 
 class PackageListPage extends StatefulWidget {
   const PackageListPage({Key? key}) : super(key: key);
@@ -34,6 +35,12 @@ class _PackageListPageState extends State<PackageListPage> {
       appBar: AppBar(
         title: Text(loc.appTitle),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              context.read<LocaleCubit>().toggleLocale();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.brightness_6),
             onPressed: () {

@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nuget_packages/l10n/app_localizations.dart';
 import 'features/package/data/package_repository.dart';
 import 'features/package/presentation/bloc/theme_cubit.dart';
+import 'features/package/presentation/bloc/locale_cubit.dart';
 import 'features/package/presentation/bloc/package_list_cubit.dart';
 import 'features/package/presentation/bloc/package_detail_cubit.dart';
 import 'features/package/presentation/pages/package_list_page.dart';
@@ -55,6 +56,9 @@ class _NuGetPackagesAppState extends State<NuGetPackagesApp> {
         BlocProvider<ThemeCubit>(
           create: (context) => ThemeCubit(),
         ),
+        BlocProvider<LocaleCubit>(
+          create: (context) => LocaleCubit(),
+        ),
         BlocProvider<PackageListCubit>(
           create: (context) => PackageListCubit(_repository),
         ),
@@ -64,34 +68,39 @@ class _NuGetPackagesAppState extends State<NuGetPackagesApp> {
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
-          return MaterialApp.router(
-            title: '.NET Packages',
-            themeMode: themeMode,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.deepPurple,
-                brightness: Brightness.light,
-              ),
-              useMaterial3: true,
-            ),
-            darkTheme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.deepPurple,
-                brightness: Brightness.dark,
-              ),
-              useMaterial3: true,
-            ),
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en', ''), 
-              Locale('ru', ''),
-            ],
-            routerConfig: _router,
+          return BlocBuilder<LocaleCubit, Locale>(
+            builder: (context, locale) {
+              return MaterialApp.router(
+                title: '.NET Packages',
+                themeMode: themeMode,
+                theme: ThemeData(
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: Colors.deepPurple,
+                    brightness: Brightness.light,
+                  ),
+                  useMaterial3: true,
+                ),
+                darkTheme: ThemeData(
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: Colors.deepPurple,
+                    brightness: Brightness.dark,
+                  ),
+                  useMaterial3: true,
+                ),
+                locale: locale,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('en', ''), 
+                  Locale('ru', ''),
+                ],
+                routerConfig: _router,
+              );
+            },
           );
         },
       ),
