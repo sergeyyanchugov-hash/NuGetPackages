@@ -43,6 +43,16 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.packageDetails),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
