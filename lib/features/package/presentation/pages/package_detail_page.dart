@@ -33,6 +33,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
   }
 
   void _onDependencyClick(String depId) {
+    // Используем push, чтобы добавить экран поверх текущего
     context.push('/package/$depId');
   }
 
@@ -43,16 +44,8 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.packageDetails),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/');
-            }
-          },
-        ),
+        // По умолчанию GoRouter сам рисует кнопку "Назад" (BackButton) 
+        // для экранов, открытых через push. Мы убираем ручное переопределение leading.
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
