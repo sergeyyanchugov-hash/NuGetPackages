@@ -1,0 +1,12 @@
+{
+  "appTitle": ".NET Packages",
+  "searchHint": "Поиск пакетов...",
+  "nothingFound": "Ничего не найдено",
+  "nothingFoundFor": "По запросу «{query}» ничего не найдено",
+  "resetSearch": "Сбросить поиск",
+  "packageDetails": "Детали пакета",
+  "error": "Ошибка: {error}",
+  "backToHome": "Вернуться на главный экран",
+  "availableVersions": "Доступные версии",
+  "dependencies": "Зависимости"
+}

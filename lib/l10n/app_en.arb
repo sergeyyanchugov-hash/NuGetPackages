@@ -1,0 +1,26 @@
+{
+  "appTitle": ".NET Packages",
+  "searchHint": "Search packages...",
+  "nothingFound": "Nothing found",
+  "nothingFoundFor": "Nothing found for \"{query}\"",
+  "@nothingFoundFor": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "resetSearch": "Reset search",
+  "packageDetails": "Package Details",
+  "error": "Error: {error}",
+  "@error": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "backToHome": "Back to Home",
+  "availableVersions": "Available Versions",
+  "dependencies": "Dependencies"
+}

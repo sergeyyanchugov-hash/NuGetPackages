@@ -1,4 +1,4 @@
-import '../models/package_dto.dart';
+import '../domain/models/package_dto.dart';
 
 class MockPackageRepository {
   Future<List<PackageDto>> getPackages(String query) async {
