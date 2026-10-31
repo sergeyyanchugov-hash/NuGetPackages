@@ -110,7 +110,8 @@ class _PackageListPageState extends State<PackageListPage> {
                         title: Text(pkg.id),
                         subtitle: pkg.description != null ? Text(pkg.description!, maxLines: 2, overflow: TextOverflow.ellipsis) : null,
                         onTap: () {
-                          context.go('/package/${pkg.id}');
+                          // Change go to push here so we can always return to the list
+                          context.push('/package/${pkg.id}');
                         },
                       );
                     },
