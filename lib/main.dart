@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:nuget_packages/l10n/app_localizations.dart';
 import 'features/package/data/package_repository.dart';
 import 'features/package/presentation/bloc/theme_cubit.dart';
 import 'features/package/presentation/bloc/package_list_cubit.dart';
