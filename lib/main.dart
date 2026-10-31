@@ -42,7 +42,13 @@ class _NuGetPackagesAppState extends State<NuGetPackagesApp> {
           path: '/package/:id',
           builder: (context, state) {
             final id = state.pathParameters['id']!;
-            return PackageDetailPage(packageId: id);
+            // Предоставляем новый инстанс Cubit для каждого экрана деталей.
+            // Это решает проблему со стеком навигации, когда один экран деталей 
+            // открывается поверх другого.
+            return BlocProvider<PackageDetailCubit>(
+              create: (context) => PackageDetailCubit(_repository),
+              child: PackageDetailPage(packageId: id),
+            );
           },
         ),
       ],
@@ -62,9 +68,7 @@ class _NuGetPackagesAppState extends State<NuGetPackagesApp> {
         BlocProvider<PackageListCubit>(
           create: (context) => PackageListCubit(_repository),
         ),
-        BlocProvider<PackageDetailCubit>(
-          create: (context) => PackageDetailCubit(_repository),
-        ),
+        // Убрали глобальный PackageDetailCubit отсюда
       ],
       child: BlocBuilder<ThemeCubit, ThemeMode>(
         builder: (context, themeMode) {
