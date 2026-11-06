@@ -107,6 +107,14 @@ class _PackageListPageState extends State<PackageListPage> {
                     itemBuilder: (context, index) {
                       final pkg = packages[index];
                       return ListTile(
+                        leading: pkg.iconUrl != null && pkg.iconUrl!.isNotEmpty
+                            ? Image.asset(
+                                pkg.iconUrl!,
+                                width: 48,
+                                height: 48,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 48),
+                              )
+                            : const Icon(Icons.extension, size: 48),
                         title: Text(pkg.id),
                         subtitle: pkg.description != null ? Text(pkg.description!, maxLines: 2, overflow: TextOverflow.ellipsis) : null,
                         onTap: () {

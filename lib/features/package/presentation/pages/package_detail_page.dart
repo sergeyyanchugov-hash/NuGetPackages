@@ -77,12 +77,35 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(pkg.id, style: Theme.of(context).textTheme.headlineMedium),
-                  const SizedBox(height: 4),
-                  Text(pkg.version, style: Theme.of(context).textTheme.titleMedium),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (pkg.iconUrl != null && pkg.iconUrl!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: Image.asset(
+                            pkg.iconUrl!,
+                            width: 64,
+                            height: 64,
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 64),
+                          ),
+                        ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(pkg.id, style: Theme.of(context).textTheme.headlineMedium),
+                            const SizedBox(height: 4),
+                            Text(pkg.version, style: Theme.of(context).textTheme.titleMedium),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                   if (pkg.description != null && pkg.description!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
                     Text(pkg.description!, style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 8),
                   ],
                   const Divider(height: 32),
                   Text(loc.availableVersions, style: Theme.of(context).textTheme.titleLarge),
