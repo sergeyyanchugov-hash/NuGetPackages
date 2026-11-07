@@ -60,91 +60,101 @@ class _PackageDetailView extends StatelessWidget {
       ),
       body: BlocBuilder<PackageDetailCubit, PackageDetailState>(
         builder: (context, state) {
-          if (state is PackageDetailLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is PackageDetailError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(loc.error(state.message)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => _onHomeClick(context),
-                    child: Text(loc.backToHome),
-                  ),
-                ],
+          return switch (state) {
+            PackageDetailLoading() => const Center(child: CircularProgressIndicator()),
+            PackageDetailNotFound() => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(loc.nothingFound),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => _onHomeClick(context),
+                      child: Text(loc.backToHome),
+                    ),
+                  ],
+                ),
               ),
-            );
-          } else if (state is PackageDetailLoaded) {
-            final pkg = state.package;
-            final iconPath = ImageSources.getPackageIcon(pkg.iconUrl);
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+            PackageDetailError(:final message) => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(loc.error(message)),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => _onHomeClick(context),
+                      child: Text(loc.backToHome),
+                    ),
+                  ],
+                ),
+              ),
+            PackageDetailLoaded(:final package) => () {
+                final iconPath = ImageSources.getPackageIcon(package.iconUrl);
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (iconPath.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: Image.asset(
-                            iconPath,
-                            width: 64,
-                            height: 64,
-                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 64),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          if (iconPath.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 16.0),
+                              child: Image.asset(
+                                iconPath,
+                                width: 64,
+                                height: 64,
+                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 64),
+                              ),
+                            ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(package.id, style: Theme.of(context).textTheme.headlineMedium),
+                                const SizedBox(height: 4),
+                                Text(package.version, style: Theme.of(context).textTheme.titleMedium),
+                              ],
+                            ),
                           ),
-                        ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(pkg.id, style: Theme.of(context).textTheme.headlineMedium),
-                            const SizedBox(height: 4),
-                            Text(pkg.version, style: Theme.of(context).textTheme.titleMedium),
-                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (package.description != null && package.description!.isNotEmpty) ...[
+                        Text(package.description!, style: Theme.of(context).textTheme.bodyLarge),
+                        const SizedBox(height: 8),
+                      ],
+                      const Divider(height: 32),
+                      Text(loc.availableVersions, style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 8),
+                      ...package.versions.map((v) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Text(v.version),
+                          )),
+                      const Divider(height: 32),
+                      Text(loc.dependencies, style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 8),
+                      ...package.dependencies.map((depId) => TextButton(
+                            onPressed: () => _onDependencyClick(context, depId),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(depId),
+                            ),
+                          )),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => _onHomeClick(context),
+                          child: Text(loc.backToHome),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  if (pkg.description != null && pkg.description!.isNotEmpty) ...[
-                    Text(pkg.description!, style: Theme.of(context).textTheme.bodyLarge),
-                    const SizedBox(height: 8),
-                  ],
-                  const Divider(height: 32),
-                  Text(loc.availableVersions, style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  ...pkg.versions.map((v) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Text(v.version),
-                      )),
-                  const Divider(height: 32),
-                  Text(loc.dependencies, style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  ...pkg.dependencies.map((depId) => TextButton(
-                        onPressed: () => _onDependencyClick(context, depId),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(depId),
-                        ),
-                      )),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _onHomeClick(context),
-                      child: Text(loc.backToHome),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-          return const SizedBox.shrink();
+                );
+              }(),
+          };
         },
       ),
     );

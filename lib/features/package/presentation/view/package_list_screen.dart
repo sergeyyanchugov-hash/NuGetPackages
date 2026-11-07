@@ -81,54 +81,49 @@ class _PackageListScreenState extends State<PackageListScreen> {
           Expanded(
             child: BlocBuilder<PackageListCubit, PackageListState>(
               builder: (context, state) {
-                if (state is PackageListLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is PackageListError) {
-                  return Center(child: Text(loc.error(state.message)));
-                } else if (state is PackageListEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.info, size: 64, color: AppColors.iconVariant),
-                        const SizedBox(height: 16),
-                        Text(loc.nothingFound, style: const TextStyle(fontSize: 20)),
-                        const SizedBox(height: 8),
-                        Text(loc.nothingFoundFor(state.query)),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: _onClearSearch,
-                          child: Text(loc.resetSearch),
-                        ),
-                      ],
+                return switch (state) {
+                  PackageListLoading() => const Center(child: CircularProgressIndicator()),
+                  PackageListError(:final message) => Center(child: Text(loc.error(message))),
+                  PackageListEmpty(:final query) => Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.info, size: 64, color: AppColors.iconVariant),
+                          const SizedBox(height: 16),
+                          Text(loc.nothingFound, style: const TextStyle(fontSize: 20)),
+                          const SizedBox(height: 8),
+                          Text(loc.nothingFoundFor(query)),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: _onClearSearch,
+                            child: Text(loc.resetSearch),
+                          ),
+                        ],
+                      ),
                     ),
-                  );
-                } else if (state is PackageListLoaded) {
-                  final packages = state.packages;
-                  return ListView.builder(
-                    itemCount: packages.length,
-                    itemBuilder: (context, index) {
-                      final pkg = packages[index];
-                      final iconPath = ImageSources.getPackageIcon(pkg.iconUrl);
-                      return ListTile(
-                        leading: iconPath.isNotEmpty
-                            ? Image.asset(
-                                iconPath,
-                                width: 48,
-                                height: 48,
-                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 48),
-                              )
-                            : const Icon(Icons.extension, size: 48),
-                        title: Text(pkg.id),
-                        subtitle: pkg.description != null ? Text(pkg.description!, maxLines: 2, overflow: TextOverflow.ellipsis) : null,
-                        onTap: () {
-                          context.push('/package/${pkg.id}');
-                        },
-                      );
-                    },
-                  );
-                }
-                return const SizedBox.shrink();
+                  PackageListLoaded(:final packages) => ListView.builder(
+                      itemCount: packages.length,
+                      itemBuilder: (context, index) {
+                        final pkg = packages[index];
+                        final iconPath = ImageSources.getPackageIcon(pkg.iconUrl);
+                        return ListTile(
+                          leading: iconPath.isNotEmpty
+                              ? Image.asset(
+                                  iconPath,
+                                  width: 48,
+                                  height: 48,
+                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 48),
+                                )
+                              : const Icon(Icons.extension, size: 48),
+                          title: Text(pkg.id),
+                          subtitle: pkg.description != null ? Text(pkg.description!, maxLines: 2, overflow: TextOverflow.ellipsis) : null,
+                          onTap: () {
+                            context.push('/package/${pkg.id}');
+                          },
+                        );
+                      },
+                    ),
+                };
               },
             ),
           ),

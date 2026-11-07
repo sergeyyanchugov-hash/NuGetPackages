@@ -19,6 +19,10 @@ final class PackageDetailLoaded extends PackageDetailState {
   List<Object?> get props => [package];
 }
 
+final class PackageDetailNotFound extends PackageDetailState {
+  const PackageDetailNotFound();
+}
+
 final class PackageDetailError extends PackageDetailState {
   final String message;
 

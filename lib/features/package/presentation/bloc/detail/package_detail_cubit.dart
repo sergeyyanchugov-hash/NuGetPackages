@@ -8,16 +8,20 @@ class PackageDetailCubit extends Cubit<PackageDetailState> {
   PackageDetailCubit(this._repository) : super(PackageDetailLoading());
 
   void fetchPackageDetail(String id) async {
+    if (isClosed) return;
     emit(PackageDetailLoading());
     try {
       final pkg = await _repository.getPackageDetail(id);
+      if (isClosed) return;
       if (pkg != null) {
         emit(PackageDetailLoaded(pkg));
       } else {
-        emit(const PackageDetailError("Package not found"));
+        emit(const PackageDetailNotFound());
       }
     } catch (e) {
-      emit(PackageDetailError(e.toString()));
+      if (!isClosed) {
+        emit(PackageDetailError(e.toString()));
+      }
     }
   }
 }

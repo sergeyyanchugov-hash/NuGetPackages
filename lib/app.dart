@@ -37,7 +37,7 @@ class NuGetPackagesApp extends StatelessWidget {
             return BlocBuilder<LocaleCubit, Locale>(
               builder: (context, locale) {
                 return MaterialApp.router(
-                  title: '.NET Packages',
+                  onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
                   themeMode: themeMode,
                   theme: AppTheme.lightTheme,
                   darkTheme: AppTheme.darkTheme,
