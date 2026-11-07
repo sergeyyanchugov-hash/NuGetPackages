@@ -1,37 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nuget_packages/common/theme/image_sources.dart';
 import 'package:nuget_packages/l10n/app_localizations.dart';
-import '../bloc/package_detail_cubit.dart';
+import '../../domain/i_package_repository.dart';
+import '../bloc/detail/package_detail_cubit.dart';
+import '../bloc/detail/package_detail_state.dart';
 
-class PackageDetailPage extends StatefulWidget {
+class PackageDetailScreen extends StatelessWidget {
   final String packageId;
 
-  const PackageDetailPage({Key? key, required this.packageId}) : super(key: key);
+  const PackageDetailScreen({Key? key, required this.packageId}) : super(key: key);
 
   @override
-  State<PackageDetailPage> createState() => _PackageDetailPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider<PackageDetailCubit>(
+      create: (context) => PackageDetailCubit(
+        context.read<IPackageRepository>(),
+      )..fetchPackageDetail(packageId),
+      child: const _PackageDetailView(),
+    );
+  }
 }
 
-class _PackageDetailPageState extends State<PackageDetailPage> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<PackageDetailCubit>().fetchPackageDetail(widget.packageId);
-  }
+class _PackageDetailView extends StatelessWidget {
+  const _PackageDetailView({Key? key}) : super(key: key);
 
-  void _onHomeClick() {
+  void _onHomeClick(BuildContext context) {
     context.go('/');
   }
 
-  void _onDependencyClick(String depId) {
+  void _onDependencyClick(BuildContext context, String depId) {
     context.push('/package/$depId');
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.packageDetails),
@@ -48,7 +54,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
-            onPressed: _onHomeClick,
+            onPressed: () => _onHomeClick(context),
           ),
         ],
       ),
@@ -64,7 +70,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                   Text(loc.error(state.message)),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: _onHomeClick,
+                    onPressed: () => _onHomeClick(context),
                     child: Text(loc.backToHome),
                   ),
                 ],
@@ -72,6 +78,8 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
             );
           } else if (state is PackageDetailLoaded) {
             final pkg = state.package;
+            final iconPath = ImageSources.getPackageIcon(pkg.iconUrl);
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -80,11 +88,11 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      if (pkg.iconUrl != null && pkg.iconUrl!.isNotEmpty)
+                      if (iconPath.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(right: 16.0),
                           child: Image.asset(
-                            pkg.iconUrl!,
+                            iconPath,
                             width: 64,
                             height: 64,
                             errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 64),
@@ -118,7 +126,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                   Text(loc.dependencies, style: Theme.of(context).textTheme.titleLarge),
                   const SizedBox(height: 8),
                   ...pkg.dependencies.map((depId) => TextButton(
-                        onPressed: () => _onDependencyClick(depId),
+                        onPressed: () => _onDependencyClick(context, depId),
                         child: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(depId),
@@ -128,7 +136,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _onHomeClick,
+                      onPressed: () => _onHomeClick(context),
                       child: Text(loc.backToHome),
                     ),
                   ),

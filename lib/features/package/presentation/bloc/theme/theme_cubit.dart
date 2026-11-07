@@ -10,8 +10,6 @@ class ThemeCubit extends Cubit<ThemeMode> {
     } else if (state == ThemeMode.dark) {
       emit(ThemeMode.light);
     } else {
-      // If it's system, just pick dark or light based on a default. 
-      // A more robust app would check PlatformDispatcher.instance.platformBrightness
       emit(ThemeMode.dark);
     }
   }

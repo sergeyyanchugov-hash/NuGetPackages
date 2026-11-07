@@ -1,17 +1,18 @@
-class PackageVersionDto {
+class PackageVersionModel {
   final String version;
-  PackageVersionDto({required this.version});
+
+  const PackageVersionModel({required this.version});
 }
 
-class PackageDto {
+class PackageModel {
   final String id;
   final String version;
   final String? description;
   final String? iconUrl;
-  final List<PackageVersionDto> versions;
+  final List<PackageVersionModel> versions;
   final List<String> dependencies;
 
-  PackageDto({
+  const PackageModel({
     required this.id,
     required this.version,
     this.description,
