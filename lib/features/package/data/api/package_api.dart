@@ -24,10 +24,37 @@ class PackageApi {
   }
 
   Future<PackageResponseDto> getPackageDetail(String id) async {
-    final response = await _dio.get(
+    // 1. Сначала пробуем точный поиск по packageid
+    var response = await _dio.get(
       '/query',
       queryParameters: {
         'q': 'packageid:${id.toLowerCase()}',
+        'take': 1,
+      },
+    );
+    var dto = PackageResponseDto.fromJson(response.data as Map<String, dynamic>);
+    if (dto.data.isNotEmpty) {
+      return dto;
+    }
+
+    // 2. Если по packageid ничего не найдено, ищем по id:...
+    response = await _dio.get(
+      '/query',
+      queryParameters: {
+        'q': 'id:${id.toLowerCase()}',
+        'take': 1,
+      },
+    );
+    dto = PackageResponseDto.fromJson(response.data as Map<String, dynamic>);
+    if (dto.data.isNotEmpty) {
+      return dto;
+    }
+
+    // 3. Общий поиск по ключевому слову/тегу
+    response = await _dio.get(
+      '/query',
+      queryParameters: {
+        'q': id,
         'take': 1,
       },
     );
