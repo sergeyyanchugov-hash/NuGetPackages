@@ -18,11 +18,26 @@ class PackageListScreen extends StatefulWidget {
 
 class _PackageListScreenState extends State<PackageListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     context.read<PackageListCubit>().fetchPackages("");
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      context.read<PackageListCubit>().loadMorePackages();
+    }
   }
 
   void _onClearSearch() {
@@ -117,9 +132,16 @@ class _PackageListScreenState extends State<PackageListScreen> {
                         ],
                       ),
                     ),
-                  PackageListLoaded(:final packages) => ListView.builder(
-                      itemCount: packages.length,
+                  PackageListLoaded(:final packages, :final isLoadingMore) => ListView.builder(
+                      controller: _scrollController,
+                      itemCount: packages.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
+                        if (index == packages.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
                         final pkg = packages[index];
                         return ListTile(
                           leading: ImageSources.buildPackageIcon(pkg.iconUrl, size: 48),

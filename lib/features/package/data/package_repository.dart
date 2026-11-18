@@ -9,8 +9,8 @@ class PackageRepository implements IPackageRepository {
   PackageRepository(this._dataSource);
 
   @override
-  Future<List<PackageModel>> getPackages(String query) async {
-    final response = await _dataSource.searchPackages(query: query);
+  Future<List<PackageModel>> getPackages(String query, {int skip = 0, int take = 20}) async {
+    final response = await _dataSource.searchPackages(query: query, skip: skip, take: take);
     return response.data.map((dto) => dto.toDomain()).toList();
   }
 
