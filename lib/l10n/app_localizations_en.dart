@@ -34,6 +34,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get networkError => 'No internet connection';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get backToHome => 'Back to Home';
 
   @override

@@ -21,7 +21,7 @@ class NetworkPackageDataSource implements IPackageDataSource {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionError) {
-        throw const NetworkException('Ошибка соединения с сетью');
+        throw const NetworkException('network_error');
       }
       throw ServerException(e.response?.statusCode, e.message ?? 'Server error');
     } catch (e) {
@@ -37,7 +37,7 @@ class NetworkPackageDataSource implements IPackageDataSource {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.connectionError) {
-        throw const NetworkException('Ошибка соединения с сетью');
+        throw const NetworkException('network_error');
       }
       throw ServerException(e.response?.statusCode, e.message ?? 'Server error');
     } catch (e) {

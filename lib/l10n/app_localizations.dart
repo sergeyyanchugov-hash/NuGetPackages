@@ -140,6 +140,18 @@ abstract class AppLocalizations {
   /// **'Error: {error}'**
   String error(String error);
 
+  /// No description provided for @networkError.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get networkError;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
   /// No description provided for @backToHome.
   ///
   /// In en, this message translates to:

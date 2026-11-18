@@ -20,6 +20,8 @@
       }
     }
   },
+  "networkError": "No internet connection",
+  "retry": "Retry",
   "backToHome": "Back to Home",
   "availableVersions": "Available Versions",
   "dependencies": "Dependencies",

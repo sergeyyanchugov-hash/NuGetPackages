@@ -49,6 +49,16 @@ class _PackageListScreenState extends State<PackageListScreen> {
     context.read<PackageListCubit>().fetchPackages(_searchController.text);
   }
 
+  String _formatError(BuildContext context, String message) {
+    final loc = AppLocalizations.of(context)!;
+    if (message.contains('network_error') ||
+        message.contains('NetworkException') ||
+        message.contains('SocketException')) {
+      return loc.networkError;
+    }
+    return loc.error(message);
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -106,11 +116,11 @@ class _PackageListScreenState extends State<PackageListScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(loc.error(message)),
+                          Text(_formatError(context, message)),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: _onRetry,
-                            child: const Text('Повторить'),
+                            child: Text(loc.retry),
                           ),
                         ],
                       ),

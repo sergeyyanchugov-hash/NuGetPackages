@@ -34,6 +34,12 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get networkError => 'Отсутствует подключение к сети';
+
+  @override
+  String get retry => 'Повторить';
+
+  @override
   String get backToHome => 'Вернуться на главный экран';
 
   @override
