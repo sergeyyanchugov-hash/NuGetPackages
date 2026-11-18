@@ -157,6 +157,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dependencies'**
   String get dependencies;
+
+  /// No description provided for @showAllVersions.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all ({count})'**
+  String showAllVersions(int count);
+
+  /// No description provided for @showLessVersions.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get showLessVersions;
 }
 
 class _AppLocalizationsDelegate

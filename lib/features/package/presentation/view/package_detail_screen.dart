@@ -23,21 +23,28 @@ class PackageDetailScreen extends StatelessWidget {
   }
 }
 
-class PackageDetailView extends StatelessWidget {
+class PackageDetailView extends StatefulWidget {
   final String packageId;
 
   const PackageDetailView({Key? key, required this.packageId}) : super(key: key);
 
-  void _onHomeClick(BuildContext context) {
+  @override
+  State<PackageDetailView> createState() => _PackageDetailViewState();
+}
+
+class _PackageDetailViewState extends State<PackageDetailView> {
+  bool _showAllVersions = false;
+
+  void _onHomeClick() {
     context.go('/');
   }
 
-  void _onDependencyClick(BuildContext context, String depId) {
+  void _onDependencyClick(String depId) {
     context.push('/package/$depId');
   }
 
-  void _onRetry(BuildContext context) {
-    context.read<PackageDetailCubit>().fetchPackageDetail(packageId);
+  void _onRetry() {
+    context.read<PackageDetailCubit>().fetchPackageDetail(widget.packageId);
   }
 
   @override
@@ -60,7 +67,7 @@ class PackageDetailView extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
-            onPressed: () => _onHomeClick(context),
+            onPressed: _onHomeClick,
           ),
         ],
       ),
@@ -75,7 +82,7 @@ class PackageDetailView extends StatelessWidget {
                     Text(loc.nothingFound),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => _onHomeClick(context),
+                      onPressed: _onHomeClick,
                       child: Text(loc.backToHome),
                     ),
                   ],
@@ -91,12 +98,12 @@ class PackageDetailView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
-                          onPressed: () => _onRetry(context),
+                          onPressed: _onRetry,
                           child: const Text('Повторить'),
                         ),
                         const SizedBox(width: 16),
                         ElevatedButton(
-                          onPressed: () => _onHomeClick(context),
+                          onPressed: _onHomeClick,
                           child: Text(loc.backToHome),
                         ),
                       ],
@@ -105,6 +112,11 @@ class PackageDetailView extends StatelessWidget {
                 ),
               ),
             PackageDetailLoaded(:final package) => () {
+                final displayedVersions = _showAllVersions
+                    ? package.versions
+                    : package.versions.take(8).toList();
+                final hasMoreVersions = package.versions.length > 8;
+
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -137,16 +149,38 @@ class PackageDetailView extends StatelessWidget {
                       const Divider(height: 32),
                       Text(loc.availableVersions, style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 8),
-                      ...package.versions.map((v) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text(v.version),
-                          )),
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children: displayedVersions
+                            .map((v) => Chip(
+                                  label: Text(v.version),
+                                  visualDensity: VisualDensity.compact,
+                                ))
+                            .toList(),
+                      ),
+                      if (hasMoreVersions) ...[
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _showAllVersions = !_showAllVersions;
+                            });
+                          },
+                          icon: Icon(_showAllVersions ? Icons.expand_less : Icons.expand_more),
+                          label: Text(
+                            _showAllVersions
+                                ? loc.showLessVersions
+                                : loc.showAllVersions(package.versions.length),
+                          ),
+                        ),
+                      ],
                       if (package.dependencies.isNotEmpty) ...[
                         const Divider(height: 32),
                         Text(loc.dependencies, style: Theme.of(context).textTheme.titleLarge),
                         const SizedBox(height: 8),
                         ...package.dependencies.map((depId) => TextButton(
-                              onPressed: () => _onDependencyClick(context, depId),
+                              onPressed: () => _onDependencyClick(depId),
                               child: Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(depId),
@@ -157,7 +191,7 @@ class PackageDetailView extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () => _onHomeClick(context),
+                          onPressed: _onHomeClick,
                           child: Text(loc.backToHome),
                         ),
                       ),

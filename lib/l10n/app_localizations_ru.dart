@@ -41,4 +41,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dependencies => 'Зависимости';
+
+  @override
+  String showAllVersions(int count) {
+    return 'Показать все ($count)';
+  }
+
+  @override
+  String get showLessVersions => 'Свернуть';
 }

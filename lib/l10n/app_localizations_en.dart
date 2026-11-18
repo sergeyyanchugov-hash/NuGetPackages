@@ -41,4 +41,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dependencies => 'Dependencies';
+
+  @override
+  String showAllVersions(int count) {
+    return 'Show all ($count)';
+  }
+
+  @override
+  String get showLessVersions => 'Show less';
 }

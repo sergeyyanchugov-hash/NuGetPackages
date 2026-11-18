@@ -8,5 +8,7 @@
   "error": "Ошибка: {error}",
   "backToHome": "Вернуться на главный экран",
   "availableVersions": "Доступные версии",
-  "dependencies": "Зависимости"
+  "dependencies": "Зависимости",
+  "showAllVersions": "Показать все ({count})",
+  "showLessVersions": "Свернуть"
 }

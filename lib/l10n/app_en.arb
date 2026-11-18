@@ -22,5 +22,14 @@
   },
   "backToHome": "Back to Home",
   "availableVersions": "Available Versions",
-  "dependencies": "Dependencies"
+  "dependencies": "Dependencies",
+  "showAllVersions": "Show all ({count})",
+  "@showAllVersions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "showLessVersions": "Show less"
 }
