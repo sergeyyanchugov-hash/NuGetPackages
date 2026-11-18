@@ -140,6 +140,18 @@ abstract class AppLocalizations {
   /// **'Error: {error}'**
   String error(String error);
 
+  /// No description provided for @networkError.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get networkError;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
   /// No description provided for @backToHome.
   ///
   /// In en, this message translates to:
@@ -157,6 +169,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dependencies'**
   String get dependencies;
+
+  /// No description provided for @showAllVersions.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all ({count})'**
+  String showAllVersions(int count);
+
+  /// No description provided for @showLessVersions.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get showLessVersions;
 }
 
 class _AppLocalizationsDelegate

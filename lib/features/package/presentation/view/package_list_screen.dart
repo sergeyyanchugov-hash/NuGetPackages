@@ -18,16 +18,45 @@ class PackageListScreen extends StatefulWidget {
 
 class _PackageListScreenState extends State<PackageListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     context.read<PackageListCubit>().fetchPackages("");
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      context.read<PackageListCubit>().loadMorePackages();
+    }
   }
 
   void _onClearSearch() {
     _searchController.clear();
     context.read<PackageListCubit>().clearSearch();
+  }
+
+  void _onRetry() {
+    context.read<PackageListCubit>().fetchPackages(_searchController.text);
+  }
+
+  String _formatError(BuildContext context, String message) {
+    final loc = AppLocalizations.of(context)!;
+    if (message.contains('network_error') ||
+        message.contains('NetworkException') ||
+        message.contains('SocketException')) {
+      return loc.networkError;
+    }
+    return loc.error(message);
   }
 
   @override
@@ -83,7 +112,19 @@ class _PackageListScreenState extends State<PackageListScreen> {
               builder: (context, state) {
                 return switch (state) {
                   PackageListLoading() => const Center(child: CircularProgressIndicator()),
-                  PackageListError(:final message) => Center(child: Text(loc.error(message))),
+                  PackageListError(:final message) => Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(_formatError(context, message)),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _onRetry,
+                            child: Text(loc.retry),
+                          ),
+                        ],
+                      ),
+                    ),
                   PackageListEmpty(:final query) => Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -101,20 +142,19 @@ class _PackageListScreenState extends State<PackageListScreen> {
                         ],
                       ),
                     ),
-                  PackageListLoaded(:final packages) => ListView.builder(
-                      itemCount: packages.length,
+                  PackageListLoaded(:final packages, :final isLoadingMore) => ListView.builder(
+                      controller: _scrollController,
+                      itemCount: packages.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
+                        if (index == packages.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
                         final pkg = packages[index];
-                        final iconPath = ImageSources.getPackageIcon(pkg.iconUrl);
                         return ListTile(
-                          leading: iconPath.isNotEmpty
-                              ? Image.asset(
-                                  iconPath,
-                                  width: 48,
-                                  height: 48,
-                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 48),
-                                )
-                              : const Icon(Icons.extension, size: 48),
+                          leading: ImageSources.buildPackageIcon(pkg.iconUrl, size: 48),
                           title: Text(pkg.id),
                           subtitle: pkg.description != null ? Text(pkg.description!, maxLines: 2, overflow: TextOverflow.ellipsis) : null,
                           onTap: () {

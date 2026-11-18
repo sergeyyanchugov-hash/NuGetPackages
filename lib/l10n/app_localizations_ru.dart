@@ -34,6 +34,12 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get networkError => 'Отсутствует подключение к сети';
+
+  @override
+  String get retry => 'Повторить';
+
+  @override
   String get backToHome => 'Вернуться на главный экран';
 
   @override
@@ -41,4 +47,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dependencies => 'Зависимости';
+
+  @override
+  String showAllVersions(int count) {
+    return 'Показать все ($count)';
+  }
+
+  @override
+  String get showLessVersions => 'Свернуть';
 }

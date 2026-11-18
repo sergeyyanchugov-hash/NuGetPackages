@@ -18,20 +18,43 @@ class PackageDetailScreen extends StatelessWidget {
       create: (context) => PackageDetailCubit(
         context.read<IPackageRepository>(),
       )..fetchPackageDetail(packageId),
-      child: const _PackageDetailView(),
+      child: PackageDetailView(packageId: packageId),
     );
   }
 }
 
-class _PackageDetailView extends StatelessWidget {
-  const _PackageDetailView({Key? key}) : super(key: key);
+class PackageDetailView extends StatefulWidget {
+  final String packageId;
 
-  void _onHomeClick(BuildContext context) {
+  const PackageDetailView({Key? key, required this.packageId}) : super(key: key);
+
+  @override
+  State<PackageDetailView> createState() => _PackageDetailViewState();
+}
+
+class _PackageDetailViewState extends State<PackageDetailView> {
+  bool _showAllVersions = false;
+
+  void _onHomeClick() {
     context.go('/');
   }
 
-  void _onDependencyClick(BuildContext context, String depId) {
+  void _onDependencyClick(String depId) {
     context.push('/package/$depId');
+  }
+
+  void _onRetry() {
+    context.read<PackageDetailCubit>().fetchPackageDetail(widget.packageId);
+  }
+
+  String _formatError(BuildContext context, String message) {
+    final loc = AppLocalizations.of(context)!;
+    if (message.contains('network_error') ||
+        message.contains('NetworkException') ||
+        message.contains('SocketException')) {
+      return loc.networkError;
+    }
+    return loc.error(message);
   }
 
   @override
@@ -54,7 +77,7 @@ class _PackageDetailView extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.home),
-            onPressed: () => _onHomeClick(context),
+            onPressed: _onHomeClick,
           ),
         ],
       ),
@@ -69,7 +92,7 @@ class _PackageDetailView extends StatelessWidget {
                     Text(loc.nothingFound),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => _onHomeClick(context),
+                      onPressed: _onHomeClick,
                       child: Text(loc.backToHome),
                     ),
                   ],
@@ -79,17 +102,31 @@ class _PackageDetailView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(loc.error(message)),
+                    Text(_formatError(context, message)),
                     const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => _onHomeClick(context),
-                      child: Text(loc.backToHome),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _onRetry,
+                          child: Text(loc.retry),
+                        ),
+                        const SizedBox(width: 16),
+                        ElevatedButton(
+                          onPressed: _onHomeClick,
+                          child: Text(loc.backToHome),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             PackageDetailLoaded(:final package) => () {
-                final iconPath = ImageSources.getPackageIcon(package.iconUrl);
+                final displayedVersions = _showAllVersions
+                    ? package.versions
+                    : package.versions.take(8).toList();
+                final hasMoreVersions = package.versions.length > 8;
+
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -98,16 +135,10 @@ class _PackageDetailView extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (iconPath.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
-                              child: Image.asset(
-                                iconPath,
-                                width: 64,
-                                height: 64,
-                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 64),
-                              ),
-                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: ImageSources.buildPackageIcon(package.iconUrl, size: 64),
+                          ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,25 +159,49 @@ class _PackageDetailView extends StatelessWidget {
                       const Divider(height: 32),
                       Text(loc.availableVersions, style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 8),
-                      ...package.versions.map((v) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text(v.version),
-                          )),
-                      const Divider(height: 32),
-                      Text(loc.dependencies, style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 8),
-                      ...package.dependencies.map((depId) => TextButton(
-                            onPressed: () => _onDependencyClick(context, depId),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(depId),
-                            ),
-                          )),
+                      Wrap(
+                        spacing: 8.0,
+                        runSpacing: 8.0,
+                        children: displayedVersions
+                            .map((v) => Chip(
+                                  label: Text(v.version),
+                                  visualDensity: VisualDensity.compact,
+                                ))
+                            .toList(),
+                      ),
+                      if (hasMoreVersions) ...[
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _showAllVersions = !_showAllVersions;
+                            });
+                          },
+                          icon: Icon(_showAllVersions ? Icons.expand_less : Icons.expand_more),
+                          label: Text(
+                            _showAllVersions
+                                ? loc.showLessVersions
+                                : loc.showAllVersions(package.versions.length),
+                          ),
+                        ),
+                      ],
+                      if (package.dependencies.isNotEmpty) ...[
+                        const Divider(height: 32),
+                        Text(loc.dependencies, style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 8),
+                        ...package.dependencies.map((depId) => TextButton(
+                              onPressed: () => _onDependencyClick(depId),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(depId),
+                              ),
+                            )),
+                      ],
                       const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () => _onHomeClick(context),
+                          onPressed: _onHomeClick,
                           child: Text(loc.backToHome),
                         ),
                       ),
