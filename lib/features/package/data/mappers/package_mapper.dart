@@ -9,7 +9,8 @@ extension PackageDtoMapper on PackageDto {
       version: version,
       description: description,
       iconUrl: iconUrl,
-      versions: versions?.map((v) => v.toDomain()).toList() ?? [],
+      // Сортируем версии от самых новых к старым (реверсируем массив)
+      versions: versions?.map((v) => v.toDomain()).toList().reversed.toList() ?? [],
       dependencies: _resolveDependencies(id),
     );
   }
@@ -47,7 +48,6 @@ extension PackageDtoMapper on PackageDto {
       return ['NETStandard.Library'];
     }
 
-    // Для любых других пакетов формируем полные реальные имена зависимостей
     if (packageId.contains('.')) {
       final parts = packageId.split('.');
       if (parts.length >= 2) {
