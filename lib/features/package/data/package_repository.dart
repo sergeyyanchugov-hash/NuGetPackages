@@ -11,7 +11,13 @@ class PackageRepository implements IPackageRepository {
   @override
   Future<List<PackageModel>> getPackages(String query, {int skip = 0, int take = 20}) async {
     final response = await _dataSource.searchPackages(query: query, skip: skip, take: take);
-    return response.data.map((dto) => dto.toDomain()).toList();
+    final packages = response.data.map((dto) => dto.toDomain()).toList();
+    final trimmed = query.trim().toLowerCase();
+    if (trimmed.isEmpty) {
+      return packages;
+    }
+    // Фильтруем результаты строго по названию/ID пакета, исключая совпадения только в описании
+    return packages.where((pkg) => pkg.id.toLowerCase().contains(trimmed)).toList();
   }
 
   @override

@@ -11,10 +11,11 @@ class PackageApi {
     int skip = 0,
     int take = 20,
   }) async {
+    final formattedQuery = query.trim().isEmpty ? '' : 'id:${query.trim()}';
     final response = await _dio.get(
       '/query',
       queryParameters: {
-        'q': query,
+        'q': formattedQuery,
         'skip': skip,
         'take': take,
       },
