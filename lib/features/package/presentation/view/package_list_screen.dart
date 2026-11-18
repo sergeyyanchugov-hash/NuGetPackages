@@ -30,6 +30,10 @@ class _PackageListScreenState extends State<PackageListScreen> {
     context.read<PackageListCubit>().clearSearch();
   }
 
+  void _onRetry() {
+    context.read<PackageListCubit>().fetchPackages(_searchController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
@@ -83,7 +87,19 @@ class _PackageListScreenState extends State<PackageListScreen> {
               builder: (context, state) {
                 return switch (state) {
                   PackageListLoading() => const Center(child: CircularProgressIndicator()),
-                  PackageListError(:final message) => Center(child: Text(loc.error(message))),
+                  PackageListError(:final message) => Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(loc.error(message)),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _onRetry,
+                            child: const Text('Повторить'),
+                          ),
+                        ],
+                      ),
+                    ),
                   PackageListEmpty(:final query) => Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -105,16 +121,8 @@ class _PackageListScreenState extends State<PackageListScreen> {
                       itemCount: packages.length,
                       itemBuilder: (context, index) {
                         final pkg = packages[index];
-                        final iconPath = ImageSources.getPackageIcon(pkg.iconUrl);
                         return ListTile(
-                          leading: iconPath.isNotEmpty
-                              ? Image.asset(
-                                  iconPath,
-                                  width: 48,
-                                  height: 48,
-                                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 48),
-                                )
-                              : const Icon(Icons.extension, size: 48),
+                          leading: ImageSources.buildPackageIcon(pkg.iconUrl, size: 48),
                           title: Text(pkg.id),
                           subtitle: pkg.description != null ? Text(pkg.description!, maxLines: 2, overflow: TextOverflow.ellipsis) : null,
                           onTap: () {

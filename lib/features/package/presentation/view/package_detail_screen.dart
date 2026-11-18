@@ -18,13 +18,15 @@ class PackageDetailScreen extends StatelessWidget {
       create: (context) => PackageDetailCubit(
         context.read<IPackageRepository>(),
       )..fetchPackageDetail(packageId),
-      child: const _PackageDetailView(),
+      child: PackageDetailView(packageId: packageId),
     );
   }
 }
 
-class _PackageDetailView extends StatelessWidget {
-  const _PackageDetailView({Key? key}) : super(key: key);
+class PackageDetailView extends StatelessWidget {
+  final String packageId;
+
+  const PackageDetailView({Key? key, required this.packageId}) : super(key: key);
 
   void _onHomeClick(BuildContext context) {
     context.go('/');
@@ -32,6 +34,10 @@ class _PackageDetailView extends StatelessWidget {
 
   void _onDependencyClick(BuildContext context, String depId) {
     context.push('/package/$depId');
+  }
+
+  void _onRetry(BuildContext context) {
+    context.read<PackageDetailCubit>().fetchPackageDetail(packageId);
   }
 
   @override
@@ -81,15 +87,24 @@ class _PackageDetailView extends StatelessWidget {
                   children: [
                     Text(loc.error(message)),
                     const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () => _onHomeClick(context),
-                      child: Text(loc.backToHome),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => _onRetry(context),
+                          child: const Text('Повторить'),
+                        ),
+                        const SizedBox(width: 16),
+                        ElevatedButton(
+                          onPressed: () => _onHomeClick(context),
+                          child: Text(loc.backToHome),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             PackageDetailLoaded(:final package) => () {
-                final iconPath = ImageSources.getPackageIcon(package.iconUrl);
                 return SingleChildScrollView(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -98,16 +113,10 @@ class _PackageDetailView extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (iconPath.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
-                              child: Image.asset(
-                                iconPath,
-                                width: 64,
-                                height: 64,
-                                errorBuilder: (context, error, stackTrace) => const Icon(Icons.extension, size: 64),
-                              ),
-                            ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: ImageSources.buildPackageIcon(package.iconUrl, size: 64),
+                          ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,16 +141,18 @@ class _PackageDetailView extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Text(v.version),
                           )),
-                      const Divider(height: 32),
-                      Text(loc.dependencies, style: Theme.of(context).textTheme.titleLarge),
-                      const SizedBox(height: 8),
-                      ...package.dependencies.map((depId) => TextButton(
-                            onPressed: () => _onDependencyClick(context, depId),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(depId),
-                            ),
-                          )),
+                      if (package.dependencies.isNotEmpty) ...[
+                        const Divider(height: 32),
+                        Text(loc.dependencies, style: Theme.of(context).textTheme.titleLarge),
+                        const SizedBox(height: 8),
+                        ...package.dependencies.map((depId) => TextButton(
+                              onPressed: () => _onDependencyClick(context, depId),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(depId),
+                              ),
+                            )),
+                      ],
                       const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
