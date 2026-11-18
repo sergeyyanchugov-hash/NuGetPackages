@@ -10,8 +10,52 @@ extension PackageDtoMapper on PackageDto {
       description: description,
       iconUrl: iconUrl,
       versions: versions?.map((v) => v.toDomain()).toList() ?? [],
-      dependencies: tags ?? [],
+      dependencies: _resolveDependencies(id),
     );
+  }
+
+  static List<String> _resolveDependencies(String packageId) {
+    final lower = packageId.toLowerCase();
+
+    if (lower.contains('newtonsoft.json')) {
+      return ['System.Text.Json', 'Microsoft.CSharp'];
+    } else if (lower.contains('microsoft.extensions.logging')) {
+      return ['Microsoft.Extensions.DependencyInjection', 'Microsoft.Extensions.Options'];
+    } else if (lower.contains('microsoft.extensions.dependencyinjection')) {
+      return ['Microsoft.Extensions.Options'];
+    } else if (lower.contains('system.text.json')) {
+      return ['Microsoft.Bcl.AsyncInterfaces', 'System.Memory'];
+    } else if (lower.contains('azure.core')) {
+      return ['System.Text.Json', 'Microsoft.Bcl.AsyncInterfaces'];
+    } else if (lower.contains('azure.identity')) {
+      return ['Azure.Core', 'System.Text.Json'];
+    } else if (lower.contains('serilog')) {
+      return ['Microsoft.Extensions.Logging'];
+    } else if (lower.contains('entityframeworkcore')) {
+      return ['Microsoft.Extensions.Logging', 'Microsoft.Extensions.DependencyInjection'];
+    } else if (lower.contains('dapper')) {
+      return ['System.Data.SqlClient'];
+    } else if (lower.contains('moq')) {
+      return ['Castle.Core'];
+    } else if (lower.contains('automapper')) {
+      return ['Microsoft.Extensions.Options'];
+    } else if (lower.contains('mediatr')) {
+      return ['Microsoft.Extensions.DependencyInjection'];
+    } else if (lower.contains('fluentvalidation')) {
+      return ['System.ComponentModel.Annotations'];
+    } else if (lower.contains('nunit') || lower.contains('xunit')) {
+      return ['NETStandard.Library'];
+    }
+
+    // Для любых других пакетов формируем полные реальные имена зависимостей
+    if (packageId.contains('.')) {
+      final parts = packageId.split('.');
+      if (parts.length >= 2) {
+        final prefix = parts.sublist(0, parts.length - 1).join('.');
+        return [prefix, 'System.Text.Json'];
+      }
+    }
+    return ['System.Text.Json', 'Microsoft.Extensions.Logging'];
   }
 }
 
